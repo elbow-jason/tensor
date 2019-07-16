@@ -12,18 +12,19 @@ defmodule Tensor.Matrix do
     end
 
     defp inspect_contents(matrix) do
-      contents_inspect = 
+      contents_inspect =
         matrix
-        |> Matrix.to_list
-        |> Enum.map(fn row -> 
-          row 
-          |> Enum.map(fn elem -> 
+        |> Matrix.to_list()
+        |> Enum.map(fn row ->
+          row
+          |> Enum.map(fn elem ->
             elem
             |> inspect
             |> String.pad_leading(8)
-          end) 
-          |> Enum.join(",") 
+          end)
+          |> Enum.join(",")
         end)
+
       #  |> Enum.join("│\n│")
       top_row_length = String.length(List.first(contents_inspect) || "")
       bottom_row_length = String.length(List.last(contents_inspect) || "")
@@ -39,7 +40,8 @@ defmodule Tensor.Matrix do
 
   Optionally pass in a fourth argument, which will be the default values the matrix will be filled with. (default: `0`)
   """
-  def new(list_of_lists \\ [], height, width, identity \\ 0) when width >= 0 and height >= 0 and (width > 0 or height > 0) do
+  def new(list_of_lists \\ [], height, width, identity \\ 0)
+      when width >= 0 and height >= 0 and (width > 0 or height > 0) do
     Tensor.new(list_of_lists, [height, width], identity)
   end
 
@@ -64,39 +66,42 @@ defmodule Tensor.Matrix do
     diag(Tensor.to_list(vector), identity)
   end
 
-  def diag(list = [_|_], identity) when is_list(list) do
+  def diag(list = [_ | _], identity) when is_list(list) do
     size = length(list)
     matrix = new([], size, size, identity)
+
     list
-    |> Enum.with_index
-    |> Enum.reduce(matrix, fn {e, i}, mat -> 
-      put_in(mat, [i,i], e)
+    |> Enum.with_index()
+    |> Enum.reduce(matrix, fn {e, i}, mat ->
+      put_in(mat, [i, i], e)
     end)
   end
 
-  @doc """ 
+  @doc """
   True if the matrix is square and the same as its transpose.
   """
-  def symmetric?(matrix = %Tensor{dimensions: [s,s]}) do
+  def symmetric?(matrix = %Tensor{dimensions: [s, s]}) do
     matrix == matrix |> transpose
   end
-  def symmetric?(%Tensor{dimensions: [_,_]}), do: false
 
-  def square?(%Tensor{dimensions: [s,s]}), do: true
-  def square?(%Tensor{dimensions: [_,_]}), do: false
+  def symmetric?(%Tensor{dimensions: [_, _]}), do: false
+
+  def square?(%Tensor{dimensions: [s, s]}), do: true
+  def square?(%Tensor{dimensions: [_, _]}), do: false
 
   @doc """
   Returns the `width` of the matrix.
   """
   def width(%Tensor{dimensions: [_height, width]}), do: width
+
   @doc """
   Returns the `height` of the matrix.
   """
   def height(%Tensor{dimensions: [height, _width]}), do: height
 
-  def transpose(matrix = %Tensor{dimensions: [_,_]}) do
+  def transpose(matrix = %Tensor{dimensions: [_, _]}) do
     Tensor.transpose(matrix, 1)
-    # new_contents = Enum.reduce(matrix.contents, %{}, fn {row_key, row_map}, new_row_map -> 
+    # new_contents = Enum.reduce(matrix.contents, %{}, fn {row_key, row_map}, new_row_map ->
     #   Enum.reduce(row_map, new_row_map, fn {col_key, value}, new_row_map ->
     #     map = Map.put_new(new_row_map, col_key, %{})
     #     put_in(map, [col_key, row_key], value)
@@ -116,14 +121,14 @@ defmodule Tensor.Matrix do
   """
   def column_matrix(vector = %Tensor{dimensions: [_]}) do
     vector
-    |> Tensor.lift
-    |> Matrix.transpose
+    |> Tensor.lift()
+    |> Matrix.transpose()
   end
 
   @doc """
   Returns the rows of this matrix as a list of Vectors.
   """
-  def rows(matrix = %Tensor{dimensions: [_w,_h]}) do
+  def rows(matrix = %Tensor{dimensions: [_w, _h]}) do
     Tensor.slices(matrix)
   end
 
@@ -139,7 +144,7 @@ defmodule Tensor.Matrix do
   @doc """
   Returns the columns of this matrix as a list of Vectors.
   """
-  def columns(matrix = %Tensor{dimensions: [_,_]}) do
+  def columns(matrix = %Tensor{dimensions: [_, _]}) do
     matrix
     |> transpose
     |> rows
@@ -157,7 +162,7 @@ defmodule Tensor.Matrix do
   @doc """
   Returns the `n`-th column of the matrix as a Vector.
 
-  If you're doing a lot of calls to `column`, consider transposing the matrix 
+  If you're doing a lot of calls to `column`, consider transposing the matrix
   and calling `rows` on that transposed matrix, as it will be faster.
   """
   def column(matrix, n) do
@@ -167,17 +172,18 @@ defmodule Tensor.Matrix do
   @doc """
   Returns the values in the main diagonal (top left to bottom right) as list
   """
-  def main_diagonal(matrix = %Tensor{dimensions: [h,w]}) do
-    for i <- 0..min(w,h)-1 do
+  def main_diagonal(matrix = %Tensor{dimensions: [h, w]}) do
+    for i <- 0..(min(w, h) - 1) do
       matrix[i][i]
     end
   end
 
   def flip_vertical(matrix = %Tensor{dimensions: [_w, h]}) do
-    new_contents = 
+    new_contents =
       for {r, v} <- matrix.contents, into: %{} do
-        {h-1 - r, v}
+        {h - 1 - r, v}
       end
+
     %Tensor{matrix | contents: new_contents}
   end
 
@@ -206,20 +212,18 @@ defmodule Tensor.Matrix do
     |> flip_horizontal
   end
 
-
   @doc """
   Returns the sum of the main diagonal of a square matrix.
 
   Note that this method will fail when called with a non-square matrix
   """
-  def trace(matrix = %Tensor{dimensions: [n,n]}) do
+  def trace(matrix = %Tensor{dimensions: [n, n]}) do
     Enum.sum(main_diagonal(matrix))
   end
 
-  def trace(%Tensor{dimensions: [_,_]}) do
+  def trace(%Tensor{dimensions: [_, _]}) do
     raise Tensor.ArithmeticError, "Matrix.trace/1 is not defined for non-square matrices!"
   end
-
 
   @doc """
   Returns the current identity of matrix  `matrix`.
@@ -265,7 +269,6 @@ defmodule Tensor.Matrix do
     Tensor.from_sparse_map(matrix, [height, width], identity)
   end
 
-
   defdelegate add(a, b), to: Tensor
   defdelegate sub(a, b), to: Tensor
   defdelegate mult(a, b), to: Tensor
@@ -293,7 +296,7 @@ defmodule Tensor.Matrix do
 
   @doc """
   Elementwise division of `matrix_a` and `matrix_b`.
-  Make sure that the identity of `matrix_b` isn't 0 before doing this. 
+  Make sure that the identity of `matrix_b` isn't 0 before doing this.
   """
   defdelegate div_matrix(matrix_a, matrix_b), to: Tensor, as: :div_tensor
 
@@ -307,50 +310,49 @@ defmodule Tensor.Matrix do
   The identities of the two matrices cannot be kept; `nil` is used as identity of the output Matrix.
   """
   def product(m_by_n_matrix, n_by_p_matrix)
-  def product(a = %Tensor{dimensions: [m,n]}, b = %Tensor{dimensions: [n,p]}) do
+
+  def product(a = %Tensor{dimensions: [m, n]}, b = %Tensor{dimensions: [n, p]}) do
     b_t = transpose(b)
-    list_of_lists = 
-      for r <- (0..m-1) do
-        for c <- (0..p-1) do
+
+    list_of_lists =
+      for r <- 0..(m - 1) do
+        for c <- 0..(p - 1) do
           Vector.dot_product(a[r], b_t[c])
         end
       end
+
     Tensor.new(list_of_lists, [m, p])
   end
 
-
-
-  def product(_a = %Tensor{dimensions: [_,_]}, _b = %Tensor{dimensions: [_,_]}) do
-    raise Tensor.ArithmeticError, "Cannot compute Matrix.product if the width of matrix `a` does not match the height of matrix `b`!"
+  def product(_a = %Tensor{dimensions: [_, _]}, _b = %Tensor{dimensions: [_, _]}) do
+    raise Tensor.ArithmeticError,
+          "Cannot compute Matrix.product if the width of matrix `a` does not match the height of matrix `b`!"
   end
 
   @doc """
   Calculates the product of `matrix` with `matrix`, `exponent` times.
-  If `exponent` == 0, then the result will be the identity matrix with the same dimensions as the given matrix. 
+  If `exponent` == 0, then the result will be the identity matrix with the same dimensions as the given matrix.
 
   This is calculated using the fast [exponentiation by squaring](https://en.wikipedia.org/wiki/Exponentiation_by_squaring) algorithm.
   """
   def power(matrix, exponent)
 
-  def power(matrix = %Tensor{dimensions: [a,a]}, negative_number) when negative_number < 0 do
+  def power(matrix = %Tensor{dimensions: [a, a]}, negative_number) when negative_number < 0 do
     product(Matrix.identity_matrix(-1, a), power(matrix, -negative_number))
   end
 
-  def power(%Tensor{dimensions: [a,a]}, 0), do: Matrix.identity_matrix(a)
-  def power(matrix = %Tensor{dimensions: [a,a]}, 1), do: matrix
-  
-  def power(matrix = %Tensor{dimensions: [a,a]}, exponent) when rem(exponent, 2) == 0 do
+  def power(%Tensor{dimensions: [a, a]}, 0), do: Matrix.identity_matrix(a)
+  def power(matrix = %Tensor{dimensions: [a, a]}, 1), do: matrix
+
+  def power(matrix = %Tensor{dimensions: [a, a]}, exponent) when rem(exponent, 2) == 0 do
     power(product(matrix, matrix), Kernel.div(exponent, 2))
   end
 
-  def power(matrix = %Tensor{dimensions: [a,a]}, exponent) when rem(exponent, 2) == 1 do
+  def power(matrix = %Tensor{dimensions: [a, a]}, exponent) when rem(exponent, 2) == 1 do
     product(matrix, power(product(matrix, matrix), Kernel.div(exponent, 2)))
   end
 
-  def power(%Tensor{dimensions: [_,_]}) do
+  def power(%Tensor{dimensions: [_, _]}) do
     raise Tensor.ArithmeticError, "Cannot compute Matrix.power with non-square matrices"
   end
-
-
 end
-

@@ -2,14 +2,16 @@ defmodule Tensor.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :tensor,
-     version: "2.1.2",
-     elixir: "~> 1.3",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     description: description(),
-     package: package(),
-     deps: deps()]
+    [
+      app: :tensor,
+      version: "2.1.2",
+      elixir: "~> 1.3",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      description: description(),
+      package: package(),
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
@@ -37,11 +39,10 @@ defmodule Tensor.Mixfile do
     [
       {:dialyxir, "~> 0.4", only: :dev},
       {:ex_doc, ">= 0.14.0", only: :dev},
-
       {:numbers, "~> 5.0"},
       {:fun_land, "~> 0.9.0", optional: true},
       {:extractable, "~> 0.2.0"},
-      {:insertable, "~> 0.2.0"},
+      {:insertable, "~> 0.2.0"}
     ]
   end
 
@@ -52,12 +53,13 @@ defmodule Tensor.Mixfile do
   end
 
   defp package do
-    [# These are the default files included in the package
-     name: :tensor,
-     files: ["lib", "mix.exs", "README*", "LICENSE*"],
-     maintainers: ["Wiebe-Marten/Qqwy"],
-     licenses: ["MIT"],
-     links: %{"GitHub" => "https://github.com/qqwy/tensor",
-              }]
+    # These are the default files included in the package
+    [
+      name: :tensor,
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      maintainers: ["Wiebe-Marten/Qqwy"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/qqwy/tensor"}
+    ]
   end
 end
