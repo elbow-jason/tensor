@@ -221,8 +221,13 @@ defmodule Tensor.Matrix do
     Enum.sum(main_diagonal(matrix))
   end
 
-  def trace(%Tensor{dimensions: [_, _]}) do
-    raise Tensor.ArithmeticError, "Matrix.trace/1 is not defined for non-square matrices!"
+  def trace(%Tensor{dimensions: [height, width]}) do
+    raise Tensor.ArithmeticError, """
+    Matrix.trace/1 is not defined for non-square matrices!
+
+    height: #{inspect(height)}
+    width: #{inspect(width)}
+    """
   end
 
   @doc """
@@ -324,9 +329,15 @@ defmodule Tensor.Matrix do
     Tensor.new(list_of_lists, [m, p])
   end
 
-  def product(_a = %Tensor{dimensions: [_, _]}, _b = %Tensor{dimensions: [_, _]}) do
-    raise Tensor.ArithmeticError,
-          "Cannot compute Matrix.product if the width of matrix `a` does not match the height of matrix `b`!"
+  def product(%Tensor{dimensions: [height_a, width_a]}, %Tensor{dimensions: [height_b, width_b]}) do
+    raise Tensor.ArithmeticError, """
+    Cannot compute Matrix.product if the width of matrix `a` does not match the height of matrix `b`!
+
+    height_a: #{inspect(height_a)}
+    width_a: #{inspect(width_a)}
+    height_b: #{inspect(height_b)}
+    width_b: #{inspect(width_b)}
+    """
   end
 
   @doc """
@@ -352,7 +363,13 @@ defmodule Tensor.Matrix do
     product(matrix, power(product(matrix, matrix), Kernel.div(exponent, 2)))
   end
 
-  def power(%Tensor{dimensions: [_, _]}) do
-    raise Tensor.ArithmeticError, "Cannot compute Matrix.power with non-square matrices"
+  def power(%Tensor{dimensions: [height, width]}, exponent) do
+    raise Tensor.ArithmeticError, """
+    Cannot compute Matrix.power with non-square matrices!
+
+    height: #{inspect(height)}
+    width: #{inspect(width)}
+    exponent: #{inspect(exponent)}
+    """
   end
 end
