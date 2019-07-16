@@ -2,10 +2,11 @@ defmodule Tensor.Vector do
   alias Tensor.{Vector, Tensor}
 
   import Kernel, except: [length: 1]
+
   defmodule Inspect do
     @doc false
     def inspect(vector, _opts) do
-      "#Vector<(#{Tensor.Inspect.dimension_string(vector)})#{inspect Vector.to_list(vector)}>"
+      "#Vector<(#{Tensor.Inspect.dimension_string(vector)})#{inspect(Vector.to_list(vector))}>"
     end
   end
 
@@ -24,7 +25,7 @@ defmodule Tensor.Vector do
   end
 
   def new(range = _.._, identity) do
-    new(range |> Enum.to_list, identity)
+    new(range |> Enum.to_list(), identity)
   end
 
   def length(vector) do
@@ -38,20 +39,27 @@ defmodule Tensor.Vector do
   def reverse(vector = %Tensor{dimensions: [l]}) do
     new_contents =
       for {i, v} <- vector.contents, into: %{} do
-        {l-1 - i, v}
+        {l - 1 - i, v}
       end
+
     %Tensor{vector | contents: new_contents}
   end
 
   def dot_product(a = %Tensor{dimensions: [l]}, b = %Tensor{dimensions: [l]}) do
-    products = 
-      for i <- 0..(l-1) do
+    products =
+      for i <- 0..(l - 1) do
         a[i] * b[i]
       end
+
     Enum.sum(products)
   end
-  def dot_product(_a, _b), do: raise Tensor.ArithmeticError, "Two Vectors have to have the same length to be able to compute the dot product"
 
+  def dot_product(_a, _b),
+    do:
+      raise(
+        Tensor.ArithmeticError,
+        "Two Vectors have to have the same length to be able to compute the dot product"
+      )
 
   @doc """
   Returns the current identity of vector  `vector`.
@@ -86,7 +94,6 @@ defmodule Tensor.Vector do
   defdelegate sparse_map_with_coordinates(vector, function), to: Tensor
   defdelegate dense_map_with_coordinates(vector, function), to: Tensor
 
-
   defdelegate add(a, b), to: Tensor
   defdelegate sub(a, b), to: Tensor
   defdelegate mult(a, b), to: Tensor
@@ -117,5 +124,4 @@ defmodule Tensor.Vector do
   Make sure that the identity of `vector_b` isn't 0 before doing this. 
   """
   defdelegate div_vector(vector_a, vector_b), to: Tensor, as: :div_tensor
-
 end

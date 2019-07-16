@@ -1,5 +1,4 @@
 defmodule Tensor.Tensor.Helper do
-
   # LISTS
 
   @doc """
@@ -11,7 +10,8 @@ defmodule Tensor.Tensor.Helper do
     iex> swap_elems_in_list([1,2,3,4,5], 1, 3)
     [1, 4, 3, 2, 5]
   """
-  def swap_elems_in_list(list, pos_a, pos_a), do: list 
+  def swap_elems_in_list(list, pos_a, pos_a), do: list
+
   def swap_elems_in_list(list, pos_a, pos_b) when pos_a < pos_b do
     {initial, rest} = Enum.split(list, pos_a)
     {between, tail} = Enum.split(rest, pos_b - pos_a)
@@ -20,8 +20,8 @@ defmodule Tensor.Tensor.Helper do
     initial ++ [b] ++ tl(between) ++ [a] ++ tl(tail)
   end
 
-  def swap_elems_in_list(list, pos_a, pos_b) when pos_b < pos_a, do: swap_elems_in_list(list, pos_b, pos_a)
-
+  def swap_elems_in_list(list, pos_a, pos_b) when pos_b < pos_a,
+    do: swap_elems_in_list(list, pos_b, pos_a)
 
   # MAPS
 
@@ -40,6 +40,7 @@ defmodule Tensor.Tensor.Helper do
     nestable_keys = keys |> Enum.map(&Access.key(&1, %{}))
     put_in(map, nestable_keys, val)
   end
+
   # def put_in_path(map, keys, val) do
   #   do_put_in_path(map, keys, val, [])
   # end
@@ -91,12 +92,11 @@ defmodule Tensor.Tensor.Helper do
   @doc false
   defmacro use_if_exists?(module, opts) do
     module = Macro.expand(module, __ENV__)
+
     if Code.ensure_loaded?(module) do
       quote do
         use unquote(module), unquote(opts)
       end
     end
   end
-
 end
-
